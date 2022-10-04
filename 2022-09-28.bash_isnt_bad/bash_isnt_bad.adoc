@@ -1,4 +1,5 @@
 = Bash isn't bad--you're bad _at_ it.
+// papa CR: I forgot you could do the below. Cool.
 :source-highlighter:     pygments
 :pygments-style:         algol_nu
 :pygments-linenums-mode: table
@@ -10,7 +11,8 @@ A provocative title, and intentionally so.
 Bash has a reputation for being unsafe, ill-suited to complex tasks, and oft badly written.
 These problems are not inherent to the language.
 They originate solely from the user.
-
+[comment]
+papa CR: Perhaps too strongly stated. There are problems inherent in bash. Think returning values from functions. Working around those, as you discovered, does make the program text harder to read/write.
 
 == The thesis
 > You can write a bad program in any language.
@@ -31,6 +33,7 @@ Unquoted variables may either glob match unintended files/directories, or expand
 
 .General rule
 Quote all variables all the time.
+// papa CR: If it's a general rule, either: don't say "all the time" or add an "except for when you must not".
 
 .Examples
 [source,bash,linenums]
@@ -80,6 +83,7 @@ ARRAY=("${ARRAY[@]::${#ARRAY[@]}-1}")
 
 .General rule
 Comment your code, particular blocks that are dense and/or weird.
+// papa CR: particularly
 
 .Example
 [source,bash,linenums]
@@ -89,6 +93,10 @@ Comment your code, particular blocks that are dense and/or weird.
 # the 0th element -> len(array)-1.
 ARRAY=("${ARRAY[@]::${#ARRAY[@]}-1}")
 ----
+// papa CR: Personal belief, not law: I'd leave it to: This is equivalent to `array.pop()`. An array slice from 0 to length-1.
+// That tells folks what it does, and how it does it. Enough for them to look up slices.
+// Think if you repeated this comment every time you do a pop. Comments are about WHAT and WHY.
+// Less about HOW. For how, I give just enough for folks to find it in the doc.
 
 
 === Using legacy tests & command substitution
@@ -116,13 +124,21 @@ if [[ $var1 == cond1 &&
 then
    ...
 fi
-
+// papa CR: Perhaps
+// if [[ $var1 == cond1 &&
+//       $var2 == cond2 &&
+//       $var3 == cond3
+// ]]; then
+//     ...
+// fi
+// Unconventional bash, perhaps. But the block structure is more obvious. At least to me.
 
 # Don't use backticks to capture command output.
 output=`cmd`
 
 # Use $(...), it's nestable and has a significantly more clear start & stop
 # token.
+// papa CR: mention also that back tick and tick are easily confused? `awk` vs 'awk'.
 output=$(cmd)
 progdir=$( cd $(dirname "${BASH_SOURCE[@]}") ; pwd )
 ----
@@ -178,6 +194,7 @@ Setting variable defaults through parameter expansion <<spe>> can help make code
 
 | `${VAR:-value}`
 | If `$VAR` is empty, output `value` instead
+// papa CR: expand to `valua` instead
 
 | `${VAR=value}`
 | If `$VAR` is empty, set the variable `VAR` to the string `value`
@@ -190,11 +207,18 @@ Setting variable defaults through parameter expansion <<spe>> can help make code
 # return with a 0-status. We can use that to set a variable if not already
 # declared.
 : ${VERBOSE=0}
+// papa CR: I knew about colon. I didn't know about that evaluation semantics.
+// But, ditch the trickery: VERBOSE=${VERBOSE:-0} 
+// I rarely use ${VAR=value} because it's almost always confusing.
+// You either need colon, or it's a side effect in a complex expression
 
 
 # In this case, we're replacing the value of $VERBOSE (if unset) with the string
 # `unset`.
 echo "Verbosity set to: ${VERBOSE:-unset}"
+// papa CR: You might want to suggest that using the "replace with default" value for is riskier than setting variable to default at top of script form.
+// If you want to change the default, you need to find every use of it, rather than just finding the set to default at the top.
+// There are uses for replace with default, but not many.
 ----
 
 
